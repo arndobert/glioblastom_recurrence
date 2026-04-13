@@ -1,0 +1,16 @@
+{
+  "name": "glioblastom-recurrence-py39",
+  "image": "mcr.microsoft.com/devcontainers/python:3.9",
+  "postCreateCommand": "python -m pip install --upgrade pip && python -m pip install -r requirements.txt && python -m pip install wandb pydensecrf",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  }
+}
