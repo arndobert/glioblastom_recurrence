@@ -36,11 +36,14 @@ def main(path, maximum_distance=20):
 
     dataset = create_dataset(path)
 
-    with open("model.pkl", "rb") as f:
+    model_path = Path(model_file)
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+
+    with model_path.open("rb") as f:
         models_dict, scaler, metrics_dict, _ = pickle.load(f)
 
-    # Select the CatBoost model from the dictionary
-    model = models_dict['CAT']
+    model = models_dict["CAT"]
 
     for patient in (pbar := tqdm(dataset, leave=False)):
         pbar.set_description(f"Applying to {os.path.basename(patient)}")
