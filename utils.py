@@ -6,24 +6,9 @@ import traceback
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
 import time
-
-#import wandb
-#import pydensecrf.densecrf as dcrf
-#from pydensecrf.utils import create_pairwise_gaussian, create_pairwise_bilateral
-
-try:
-    import wandb
-except ImportError:
-    wandb = None
-
-try:
-    import pydensecrf.densecrf as dcrf
-    from pydensecrf.utils import create_pairwise_gaussian, create_pairwise_bilateral
-except ImportError:
-    dcrf = None
-    create_pairwise_gaussian = None
-    create_pairwise_bilateral = None
-
+import wandb
+import pydensecrf.densecrf as dcrf
+from pydensecrf.utils import create_pairwise_gaussian, create_pairwise_bilateral
 from scipy.ndimage import gaussian_filter
 from pdb import set_trace as bp
 
@@ -188,10 +173,6 @@ def _dense_gaussian_filtering(probabilities):
     """
     Test
     """
-
-    if dcrf is None:
-        raise ImportError("pydensecrf is not installed. This function is optional and not needed for main.py.")
-
     d = probabilities[..., np.newaxis]
     d = np.concatenate((d, 1.0 - d), axis=3)
     W, H, D = d.shape[0:3]

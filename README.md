@@ -1,3 +1,36 @@
+# 🧠📊 **GlioMap – Radiomics-Based Recurrence Prediction for Glioblastoma** 🔍🧬
+
+### 🚀 **GlioMap v2.0** is now publicly available and free to use via the web! 🌐💻
+
+An innovative AI-powered tool designed to **predict regions of tumor infiltration and recurrence** in glioblastoma using **radiomic features** extracted from **multiparametric MRI**.
+
+🔍 Supports non-invasive tumor characterization  
+📊 Aims to guide personalized follow-up and treatment strategies
+
+👉 Learn more and explore the tool: [**https://geibac.uva.es/**](https://geibac.uva.es/) 🔗
+
+---
+
+🔐 **License**  
+**GlioMap v2.0** is distributed under the **Academic Non-Commercial Source Code License Agreement**  
+© 2024 **UiT – The Arctic University of Norway** *(Licensor)*
+
+This software is intended exclusively for **research purposes** and **not for clinical decision-making**.
+
+---
+
+🧠 Developed by the [GEIBAC Research Group] – Biomedical Imaging and Computational Analysis  
+🏥 In collaboration with the Neurosurgery Department of **Río Hortega University Hospital** and **UiT – The Arctic University of Norway**
+
+---
+
+💬 **We welcome collaboration!**  
+If you're a researcher, clinician, or student interested in tumor modeling, radiomics, or glioblastoma research, join us!
+
+📧 Get in touch: [scepedac@saludcastillayleon.es](scepedac@saludcastillayleon.e)
+
+
+
 # Predicting regions of local recurrence in glioblastomas using voxel-based radiomic features of multiparametric MRI
 
 This repository contains the Python implementation of the papers: 
