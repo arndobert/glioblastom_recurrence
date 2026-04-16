@@ -6,11 +6,23 @@ import traceback
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
 import time
-import wandb
-import pydensecrf.densecrf as dcrf
-from pydensecrf.utils import create_pairwise_gaussian, create_pairwise_bilateral
+
 from scipy.ndimage import gaussian_filter
-from pdb import set_trace as bp
+
+# Optional dependencies – werden nur für utils.py __main__ / Sweep-Experimente benötigt,
+# nicht für den normalen Betrieb über main.py.
+try:
+    import wandb
+except ImportError:
+    wandb = None
+
+try:
+    import pydensecrf.densecrf as dcrf
+    from pydensecrf.utils import create_pairwise_gaussian, create_pairwise_bilateral
+except ImportError:
+    dcrf = None
+    create_pairwise_gaussian = None
+    create_pairwise_bilateral = None
 
 
 def correct_proba(patient, probabilities, maximum_distance=15):
@@ -65,7 +77,7 @@ def ROI(patient):
     path = os.path.join(patient, "tumor.nii.gz")
     try:
         ROI = nib.load(path).get_fdata()
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         path = os.path.join(patient, "cavity.nii.gz")
         ROI = nib.load(path).get_fdata()
 
@@ -99,7 +111,6 @@ def create_3d_image(patient):
 
 
 def fuse_t1ce_and_proba(patient, proba=None, name=None):
-
     """
     This function creates the DICOM file with the calculated probabilities fused
     with the patient's t1ce scan. It requires an intermediate step where the same
@@ -112,9 +123,8 @@ def fuse_t1ce_and_proba(patient, proba=None, name=None):
     """
 
     # The probabilities are loaded from the Nifti image for convenience,
-    # and their location saved in <mask>.The loaded probabilities are
+    # and their location saved in <mask>. The loaded probabilities are
     # grey levels (0 - 255), they have to be scaled back to 0 - 1.
-
     if proba is None:
         path = os.path.join(patient, "saved_images", "probabilities.nii")
         if not os.path.isfile(path):
@@ -151,9 +161,9 @@ def fuse_t1ce_and_proba(patient, proba=None, name=None):
     new_tags = [
         ("0008|0031", time.strftime("%H%M%S")),  # Series Time
         ("0008|0021", time.strftime("%Y%m%d")),  # Series Date
-        ("0008|0008", "DERIVED\\SECONDARY"),  # Image Type
-        ("0010|0020", os.path.basename(patient)),  # Patient ID
-        ("0008|0060", "MR"),  # Modality
+        ("0008|0008", "DERIVED\\SECONDARY"),     # Image Type
+        ("0010|0020", os.path.basename(patient)), # Patient ID
+        ("0008|0060", "MR"),                      # Modality
     ]
     for tag, value in new_tags:
         new_dicom.SetMetaData(tag, value)
@@ -171,8 +181,20 @@ def fuse_t1ce_and_proba(patient, proba=None, name=None):
 
 def _dense_gaussian_filtering(probabilities):
     """
-    Test
+    Applies Dense CRF-based Gaussian filtering to smooth probability maps.
+    Requires pydensecrf and wandb – only used for experimental sweep runs.
     """
+    if dcrf is None:
+        raise ImportError(
+            "pydensecrf ist nicht installiert. "
+            "Diese Funktion wird nur für Sweep-Experimente benötigt, nicht für main.py."
+        )
+    if wandb is None:
+        raise ImportError(
+            "wandb ist nicht installiert. "
+            "Diese Funktion wird nur für Sweep-Experimente benötigt, nicht für main.py."
+        )
+
     d = probabilities[..., np.newaxis]
     d = np.concatenate((d, 1.0 - d), axis=3)
     W, H, D = d.shape[0:3]
@@ -188,10 +210,6 @@ def _dense_gaussian_filtering(probabilities):
     pairwise_energy_gaussian = create_pairwise_gaussian(scaling_dim, (W, H, D))
     CD.addPairwiseEnergy(pairwise_energy_gaussian, compat=wandb.config["compat"])
 
-    # pairwise_energy_bilateral = create_pairwise_bilateral(
-    #     sdims=scaling_dim, schan=scaling_p, img=probabilities, chdim=-1
-    # )
-    # CD.addPairwiseEnergy(pairwise_energy_bilateral, compat=wandb.config["compat"])
     Q = CD.inference(wandb.config["inference"])
     heatmap = np.array(Q, dtype=np.float32)
     heatmap = np.reshape(heatmap[0, ...], (W, H, D))
@@ -199,7 +217,14 @@ def _dense_gaussian_filtering(probabilities):
 
 
 if __name__ == "__main__":
+    if wandb is None or dcrf is None:
+        print("FEHLER: wandb und/oder pydensecrf sind nicht installiert.")
+        print("Diese werden nur für Sweep-Experimente benötigt.")
+        print("Installation: pip install wandb pydensecrf")
+        exit(1)
+
     try:
+        from pdb import set_trace as bp
         wandb.init(
             config={"compat": 3, "scaling_dim": 10, "scaling_p": 0.001, "inference": 5}
         )

@@ -49,4 +49,5 @@ setting:
 voxelSetting:
   kernelRadius: 1
   maskedKernel: true
-  voxelBatch: 10000
+  # voxelBatch deaktiviert – verursacht Segmentation Fault auf Apple Silicon (M1/M2/M3)
+  # voxelBatch: 10000
