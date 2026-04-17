@@ -1,0 +1,27 @@
+imageType:
+  Original: {}
+
+featureClass:
+  firstorder:
+  glcm:
+    - 'Autocorrelation'
+    - 'JointAverage'
+    - 'Contrast'
+    - 'Correlation'
+    - 'JointEnergy'
+    - 'JointEntropy'
+
+setting:
+  normalize: true
+  normalizeScale: 100
+  binWidth: 25
+  interpolator: 'sitkBSpline'
+  resampledPixelSpacing: [1, 1, 1]
+  correctMask: true
+  voxelArrayShift: 300
+  force2D: true
+  force2Ddimension: 0
+
+voxelSetting:
+  kernelRadius: 1
+  maskedKernel: true
